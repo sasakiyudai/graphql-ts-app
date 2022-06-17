@@ -1,4 +1,11 @@
-import { extendType, nonNull, objectType, stringArg } from "nexus";
+import {
+  extendType,
+  idArg,
+  intArg,
+  nonNull,
+  objectType,
+  stringArg,
+} from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
 
 export const Link = objectType({
@@ -32,6 +39,15 @@ export const LinkQuery = extendType({
         return links;
       },
     });
+    t.field("link", {
+      type: "Link",
+      args: {
+        id: nonNull(intArg()),
+      },
+      resolve(parent, args, context, info) {
+        return links.find((link) => link.id === args.id) ?? null;
+      },
+    });
   },
 });
 
@@ -54,6 +70,41 @@ export const LinkMutation = extendType({
         };
         links.push(link);
         return link;
+      },
+    });
+    t.nonNull.field("updateLink", {
+      type: "Link",
+      args: {
+        id: nonNull(intArg()),
+        description: stringArg(),
+        url: stringArg(),
+      },
+      resolve(parent, args, context) {
+        const { id, description, url } = args;
+        links = links.map((link) => {
+          if (link.id === id) {
+            return {
+              id,
+              description: description ?? link.description,
+              url: url ?? link.description,
+            };
+          }
+          return link;
+        });
+        return links.find((link) => link.id === id)!;
+      },
+    });
+    t.nonNull.field("deleteLink", {
+      type: "Link",
+      args: {
+        id: nonNull(intArg()),
+      },
+      resolve(parent, args, context) {
+        const { id } = args;
+        const index = links.findIndex((link) => link.id === id);
+        const link = links.find((link) => link.id === id);
+        links.splice(index, 1);
+        return link!;
       },
     });
   },

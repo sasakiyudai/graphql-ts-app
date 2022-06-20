@@ -35,6 +35,11 @@ export interface NexusGenObjects {
   }
   Mutation: {};
   Query: {};
+  User: { // root type
+    email: string; // String!
+    id: number; // Int!
+    name: string; // String!
+  }
 }
 
 export interface NexusGenInterfaces {
@@ -62,6 +67,12 @@ export interface NexusGenFieldTypes {
     feed: NexusGenRootTypes['Link'][]; // [Link!]!
     link: NexusGenRootTypes['Link'] | null; // Link
   }
+  User: { // field return type
+    email: string; // String!
+    id: number; // Int!
+    links: NexusGenRootTypes['Link'][]; // [Link!]!
+    name: string; // String!
+  }
 }
 
 export interface NexusGenFieldTypeNames {
@@ -78,6 +89,12 @@ export interface NexusGenFieldTypeNames {
   Query: { // field return type name
     feed: 'Link'
     link: 'Link'
+  }
+  User: { // field return type name
+    email: 'String'
+    id: 'Int'
+    links: 'Link'
+    name: 'String'
   }
 }
 

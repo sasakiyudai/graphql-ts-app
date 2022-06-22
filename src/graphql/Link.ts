@@ -1,12 +1,4 @@
-import {
-  extendType,
-  idArg,
-  intArg,
-  nonNull,
-  objectType,
-  stringArg,
-} from "nexus";
-import { NexusGenObjects } from "../../nexus-typegen";
+import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 
 export const Link = objectType({
   name: "Link",
@@ -14,6 +6,14 @@ export const Link = objectType({
     t.nonNull.int("id");
     t.nonNull.string("description");
     t.nonNull.string("url");
+    t.field("postedBy", {
+      type: "User",
+      resolve(parent, args, context) {
+        return context.prisma.link
+          .findUnique({ where: { id: parent.id } })
+          .postedBy();
+      },
+    });
   },
 });
 
@@ -48,10 +48,16 @@ export const LinkMutation = extendType({
         url: nonNull(stringArg()),
       },
       resolve(parent, args, context) {
+        const { userId } = context;
+
+        if (!userId) {
+          throw new Error("Cannot post withoug logging in.");
+        }
         const newLink = context.prisma.link.create({
           data: {
             description: args.description,
             url: args.url,
+            postedBy: { connect: { id: userId } },
           },
         });
         return newLink;
